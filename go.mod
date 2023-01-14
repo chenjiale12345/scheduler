@@ -1,4 +1,4 @@
-module github.com/NJUPT-ISL/Yoda-Scheduler
+module github.com/chenjiale12345/scheduler
 
 go 1.15
 
