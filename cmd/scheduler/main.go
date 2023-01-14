@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/register"
+	"github.com/chenjiale12345/scheduler/pkg/register"
 	"k8s.io/component-base/logs"
 	"math/rand"
 	"os"
