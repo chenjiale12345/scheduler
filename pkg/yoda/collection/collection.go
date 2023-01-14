@@ -2,7 +2,7 @@ package collection
 
 import (
 	scv "github.com/NJUPT-ISL/SCV/api/v1"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
+	"github.com/chenjiale12345/scheduler/pkg/yoda/filter"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
