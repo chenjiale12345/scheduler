@@ -2,15 +2,20 @@ package score
 
 import (
 	"errors"
+
 	scv "github.com/NJUPT-ISL/SCV/api/v1"
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/collection"
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
 
 // Sum is from collection/collection.go
 // var Sum = []string{"Cores","FreeMemory","Bandwidth","MemoryClock","MemorySum","Number","Memory"}
+
+type ResourceName string
+type resourceToWeightMap map[v1.ResourceName]int64
 
 const (
 	BandwidthWeight   = 1
@@ -82,4 +87,52 @@ func CalculateAllocateScore(info *framework.NodeInfo, scv *scv.Scv) uint64 {
 	}
 
 	return (scv.Status.TotalMemorySum - allocateMemorySum) * 100 / scv.Status.TotalMemorySum * AllocateWeight
+}
+
+const (
+	defaultWeight = int64(1)
+)
+
+func mostAllocatedScoreStrategy(requested, allocatable v1.ResourceList, resourceToWeightMap resourceToWeightMap) int64 {
+	var numaNodeScore int64 = 0
+	var weightSum int64 = 0
+
+	for resourceName := range requested {
+		// We don't care what kind of resources are being requested, we just iterate all of them.
+		// If NUMA zone doesn't have the requested resource, the score for that resource will be 0.
+		resourceScore := mostAllocatedScore(requested[resourceName], allocatable[resourceName])
+		weight := resourceToWeightMap.weight(resourceName)
+		numaNodeScore += resourceScore * weight
+		weightSum += weight
+	}
+
+	return numaNodeScore / weightSum
+}
+
+// The used capacity is calculated on a scale of 0-MaxNodeScore (MaxNodeScore is
+// constant with value set to 100).
+// 0 being the lowest priority and 100 being the highest.
+// The more allocated resources the node has, the higher the score is.
+func mostAllocatedScore(requested, numaCapacity resource.Quantity) int64 {
+	if numaCapacity.CmpInt64(0) == 0 {
+		return 0
+	}
+	if requested.Cmp(numaCapacity) > 0 {
+		return 0
+	}
+
+	return requested.Value() * framework.MaxNodeScore / numaCapacity.Value()
+}
+
+func (rw resourceToWeightMap) weight(r v1.ResourceName) int64 {
+	w, ok := (rw)[r]
+	if !ok {
+		return defaultWeight
+	}
+
+	if w < 1 {
+		return defaultWeight
+	}
+
+	return w
 }
