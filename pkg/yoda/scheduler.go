@@ -15,10 +15,10 @@ import (
 
 	scv "github.com/NJUPT-ISL/SCV/api/v1"
 
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/collection"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/score"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/sort"
+	"github.com/chenjiale12345/scheduler/pkg/yoda/collection"
+	"github.com/chenjiale12345/scheduler/pkg/yoda/filter"
+	"github.com/chenjiale12345/scheduler/pkg/yoda/score"
+	"github.com/chenjiale12345/scheduler/pkg/yoda/sort"
 )
 
 const (
